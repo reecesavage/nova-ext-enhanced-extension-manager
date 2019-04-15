@@ -1,0 +1,14 @@
+.ext-ExtensionManager-enabled .ext-ExtensionManager-cell-status,
+.ext-ExtensionManager-exists .ext-ExtensionManager-cell-availability {
+	color: #5bff5b; // Green
+}
+
+.ext-ExtensionManager-noexist .ext-ExtensionManager-cell-availability {
+	color: #f95151; // red
+}
+
+.ext-ExtensionManager-button-apply {
+	display: block;
+	text-align: center;
+	margin-top: 1em;
+}

@@ -1,0 +1,11 @@
+{
+	"name": "ExtensionManager",
+	"version": "1.0.0",
+	"description": "An extension that can manage other extensions with a visual interface.",
+	"url": "http://moriel.smarterthanthat.com/",
+	"author": {
+		"name": "Moriel Schottlender",
+		"email": "mooeypoo@gmail.com",
+		"url": "http://moriel.smarterthanthat.com/"
+	}
+}
