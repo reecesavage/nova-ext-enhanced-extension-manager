@@ -1,8 +1,4 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 require_once MODPATH.'core/libraries/Nova_controller_main.php';
 require_once __DIR__ . '/../includes/ExtensionManager.php';
 

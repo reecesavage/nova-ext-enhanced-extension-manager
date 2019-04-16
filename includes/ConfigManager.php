@@ -1,15 +1,18 @@
 <?php
 namespace ExtensionManager;
 
+require_once( dirname( dirname(__FILE__) ) . '/includes/System.php' );
+
 class ConfigManager {
 	protected $extensionConfig;
-	protected $settingsKeyPrefix = 'config_manager_ext_';
 	protected $availableExtensions = [];
 	protected $enabledExtensions = [];
 	protected $ci;
+	protected $sys;
 
 	function __construct() {
 		$this->ci =& get_instance();
+		$this->sys = new System();
 
 		// Load settings model
 		$this->ci->load->model('settings_model', 'settings');
@@ -25,8 +28,8 @@ class ConfigManager {
 	 *  `nova/config/extensions.php`
 	 */
 	public function redefineExtensionConfig( &$extensions ) {
-		$enabled = $this->getDefinitionFromSettings();
-		$available = $this->getAvailableExtensions();
+		$enabled = $this->sys->getValueFromSettings();
+		$available = $this->sys->getExtensionsOnDisk();
 
 		// From the enabled extensions, make sure they're all still available
 		$enabled = array_filter(
@@ -39,51 +42,4 @@ class ConfigManager {
 		// Enable the extensions
 		$extensions = $enabled;
 	}
-
-	/**
-	 * Verify that the required settings are available, and if not,
-	 * add them into the system. These settings should not be changed
-	 * through the settings UI; they're controlled by the manager.
-	 */
-	protected function getDefinitionFromSettings() {
-		$minimalValue = [ 'ExtensionManager' ];
-
-		$value = $this->ci->settings->get_setting(
-			$this->settingsKeyPrefix . 'extensions'
-		);
-
-		if ( !$value ) {
-			$value = $minimalValue;
-		} else {
-			$value = json_decode( $value );
-		}
-
-		return $value;
-	}
-
-	/**
-	 * Check the extensions/ folder for available extensions
-	 *
-	 * @return array An array of directory names, representing
-	 *  the extension folders
-	 */
-	protected function getAvailableExtensions() {
-		$extDirPath = APPPATH.'extensions/';
-		// Go over the extensions folder
-		if ( !is_dir( $extDirPath ) ) {
-			// Bail out if 'extensions' directory isn't available
-			// at all.
-			return;
-		}
-
-		$dirs = array_map(
-			function ( $dir ) {
-				return basename( $dir );
-			},
-			glob( $extDirPath . '/**', GLOB_ONLYDIR )
-		);
-
-		return $dirs;
-	}
-
 }
