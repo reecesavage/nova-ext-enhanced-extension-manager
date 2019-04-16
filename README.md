@@ -6,8 +6,7 @@ An extension for Nova2 that adds a graphical interface to manage other extension
 ## Installation
 To install this extension, follow these steps:
 
-1. Download the extension files
-2. Extract the extension in your `nova/application/extensions/` directory
+1. Download the ExtensionManager files into the folder `nova/application/extensions/ExtensionManager`
 3. Find the file `nova/application/config/extensions.php` and add this at the end:
 
 ```
