@@ -52,15 +52,13 @@ class System {
 	 * add them into the system. These settings should not be changed
 	 * through the settings UI; they're controlled by the manager.
 	 */
-	public function getValueFromSettings() {
-		$minimalValue = [ 'ExtensionManager' ];
-
+	public function getValueFromSettings( $default = [] ) {
 		$value = $this->ci->settings->get_setting(
 			$this->settingsKeyPrefix . 'extensions'
 		);
 
 		if ( !$value ) {
-			$value = $minimalValue;
+			$value = $default;
 		} else {
 			$value = json_decode( $value );
 		}

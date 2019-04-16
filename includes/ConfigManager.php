@@ -5,6 +5,7 @@ require_once( dirname( dirname(__FILE__) ) . '/includes/System.php' );
 
 class ConfigManager {
 	protected $extensionConfig;
+	protected $mandatoryExtensions = [ 'ExtensionManager' ];
 	protected $availableExtensions = [];
 	protected $enabledExtensions = [];
 	protected $ci;
@@ -28,7 +29,7 @@ class ConfigManager {
 	 *  `nova/config/extensions.php`
 	 */
 	public function redefineExtensionConfig( &$extensions ) {
-		$enabled = $this->sys->getValueFromSettings();
+		$enabled = $this->sys->getValueFromSettings( $this->mandatoryExtensions );
 		$available = $this->sys->getExtensionsOnDisk();
 
 		// From the enabled extensions, make sure they're all still available

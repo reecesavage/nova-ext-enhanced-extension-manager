@@ -26,7 +26,7 @@ class ExtensionManager {
 	 */
 	public function getFullDefinition() {
 		$newDefinition = [];
-		$saved = $this->sys->getValueFromSettings();
+		$saved = $this->sys->getValueFromSettings( $this->mandatoryExtensions );
 		$available = $this->sys->getExtensionsOnDisk();
 
 		foreach ( $saved as $extName ) {
