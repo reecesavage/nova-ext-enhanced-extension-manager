@@ -40,7 +40,7 @@ class ConfigManager {
 		$minimalValue = [ 'ExtensionManager' ];
 
 		$value = $this->ci->settings->get_setting(
-			$this->settingsKeyPrefix . 'settings'
+			$this->settingsKeyPrefix . 'extensions'
 		);
 
 		if ( !$value ) {
