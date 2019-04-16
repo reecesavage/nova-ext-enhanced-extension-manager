@@ -22,51 +22,6 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 	}
 
 	/**
-	 * Entrypoint for saving the extension state that was chosen.
-	 * Redirects to manage() page
-	 */
-	public function save() {
-		// On submit, save the enabled extensions
-		if (isset($_POST['submit'])) {
-			$enabled = isset( $_POST[ 'enabled_extension' ] ) ?
-				$_POST[ 'enabled_extension' ] : [];
-			$enabled = array_unique( array_merge( $enabled, $this->mandatoryExtensions ) );
-
-			$success = $this->manager->updateSettings($enabled);
-			if ( $success ) {
-				$message = sprintf(
-					lang('flash_success'),
-					// TODO: i18n...
-					'Enabled extensions',
-					lang('actions_updated'),
-					''
-				);
-
-				$flash['status'] = 'success';
-				$flash['message'] = text_output($message);
-			} else {
-				$message = sprintf(
-					lang('flash_failure'),
-					// TODO: i18n...
-					'Enabled extensions',
-					lang('actions_updated'),
-					''
-				);
-
-				$flash['status'] = 'error';
-				$flash['message'] = text_output($message);
-			}
-			// set the flash message
-			$this->_regions['flash_message'] = Location::view('flash', $this->skin, 'admin', $flash);
-		}
-
-		// We are doing this through its own entrypoint and a redirect
-		// so that when the user finishes the "reload" after update, the system
-		// already loaded or disabled the extension through the config.
-		redirect( 'extensions/ExtensionManager/Manage/manage' );
-	}
-
-	/**
 	 * Displays a list of available extensions with their details
 	 * and the enable/disable states, allowing the user to change the
 	 * enabled extensions.
@@ -136,6 +91,60 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 		Template::render();
 	}
 
+	/**
+	 * Entrypoint for saving the extension state that was chosen.
+	 * Redirects to manage() page
+	 */
+	public function save() {
+		// On submit, save the enabled extensions
+		if (isset($_POST['submit'])) {
+			$enabled = isset( $_POST[ 'enabled_extension' ] ) ?
+				$_POST[ 'enabled_extension' ] : [];
+			$enabled = array_unique( array_merge( $enabled, $this->mandatoryExtensions ) );
+
+			$success = $this->manager->updateSettings($enabled);
+			if ( $success ) {
+				$message = sprintf(
+					lang('flash_success'),
+					// TODO: i18n...
+					'Enabled extensions',
+					lang('actions_updated'),
+					''
+				);
+
+				$flash['status'] = 'success';
+				$flash['message'] = text_output($message);
+			} else {
+				$message = sprintf(
+					lang('flash_failure'),
+					// TODO: i18n...
+					'Enabled extensions',
+					lang('actions_updated'),
+					''
+				);
+
+				$flash['status'] = 'error';
+				$flash['message'] = text_output($message);
+			}
+			// set the flash message
+			$this->_regions['flash_message'] = Location::view('flash', $this->skin, 'admin', $flash);
+		}
+
+		// We are doing this through its own entrypoint and a redirect
+		// so that when the user finishes the "reload" after update, the system
+		// already loaded or disabled the extension through the config.
+		redirect( 'extensions/ExtensionManager/Manage/manage' );
+	}
+
+
+	/**
+	 * Get a property from an array, if it exists
+	 * fail gracefully otherwise
+	 *
+	 * @param  string $prop The name of the key/property
+	 * @param  array $arr The array to search in
+	 * @return Mixed The value of the key in the array.
+	 */
 	protected function getPropValue( $prop, $arr ) {
 		if ( isset( $arr[$prop] ) && $arr[$prop] ) {
 			return $arr[$prop];
@@ -143,6 +152,13 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 		return '';
 	}
 
+	/**
+	 * Build the details line based on available data
+	 * from the details.php file of the given extension.
+	 *
+	 * @param  array $details Details object
+	 * @return string Styled details line
+	 */
 	protected function buildDetailsLine( $details ) {
 		$out = [];
 		if ( !$details ) {
@@ -172,6 +188,11 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 		return join( ' | ', $out );
 	}
 
+	/**
+	 * Install the necessary menu items, if they don't exist yet
+	 *
+	 * TODO: This should probably be in a model...?
+	 */
 	protected function install() {
 		$this->load->model('menu_model');
 		$expectedLink = 'extensions/ExtensionManager/Manage/';

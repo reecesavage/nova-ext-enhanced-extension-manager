@@ -15,6 +15,15 @@ class ConfigManager {
 		$this->ci->load->model('settings_model', 'settings');
 	}
 
+	/**
+	 * Take the $config['extensions']['enabled'][] variable
+	 * and populate it based on the saved settings that the
+	 * ExtensionManager provided.
+	 *
+	 * @param  array $extensions A reference to the config
+	 *  variable $config['extensions']['enabled'] from
+	 *  `nova/config/extensions.php`
+	 */
 	public function redefineExtensionConfig( &$extensions ) {
 		$enabled = $this->getDefinitionFromSettings();
 		$available = $this->getAvailableExtensions();
@@ -55,7 +64,8 @@ class ConfigManager {
 	/**
 	 * Check the extensions/ folder for available extensions
 	 *
-	 * @return [type] [description]
+	 * @return array An array of directory names, representing
+	 *  the extension folders
 	 */
 	protected function getAvailableExtensions() {
 		$extDirPath = APPPATH.'extensions/';
