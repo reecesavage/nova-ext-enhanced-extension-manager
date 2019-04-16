@@ -21,7 +21,11 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 		$this->_regions['nav_sub'] = Menu::build('adminsub', 'manageext');
 	}
 
-	public function manage() {
+	/**
+	 * Entrypoint for saving the extension state that was chosen.
+	 * Redirects to manage() page
+	 */
+	public function save() {
 		// On submit, save the enabled extensions
 		if (isset($_POST['submit'])) {
 			$enabled = isset( $_POST[ 'enabled_extension' ] ) ?
@@ -56,6 +60,18 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 			$this->_regions['flash_message'] = Location::view('flash', $this->skin, 'admin', $flash);
 		}
 
+		// We are doing this through its own entrypoint and a redirect
+		// so that when the user finishes the "reload" after update, the system
+		// already loaded or disabled the extension through the config.
+		redirect( 'extensions/ExtensionManager/Manage/manage' );
+	}
+
+	/**
+	 * Displays a list of available extensions with their details
+	 * and the enable/disable states, allowing the user to change the
+	 * enabled extensions.
+	 */
+	public function manage() {
 		$data = [
 			// TODO: SRSLY, i18n... !!!!
 			'header' => 'Manage Extensions',

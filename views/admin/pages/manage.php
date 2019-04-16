@@ -8,7 +8,7 @@ error_reporting(E_ALL);
 
 <?php echo text_output($header, 'h1');?>
 
-<?php echo form_open('extensions/ExtensionManager/Manage/manage/submit');?>
+<?php echo form_open('extensions/ExtensionManager/Manage/save');?>
 <table class="table100 zebra">
 	<tbody>
 		<tr>
