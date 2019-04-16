@@ -42,7 +42,7 @@ The file has to include a JSON object. For example:
 	"name": "ExtensionManager",
 	"version": "1.0.0",
 	"description": "An extension that can manage other extensions with a visual interface.",
-	"url": "http://moriel.smarterthanthat.com/",
+	"url": "https://github.com/mooeypoo/Nova-ExtensionManager",
 	"author": {
 		"name": "Moriel Schottlender",
 		"email": "mooeypoo@gmail.com",
