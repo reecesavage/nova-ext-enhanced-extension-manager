@@ -83,7 +83,7 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 		$data['extensions'] = [];
 		foreach ( $definition as $extName => $extData ) {
 			$classes = [];
-			$isMandatory = in_array( $extName, $this->mandatoryExtensions );
+			$isMandatory = $extData['mandatory'];
 			$enabled = ( $isMandatory || $extData['enabled'] ) && $extData['exists'];
 
 			$data['extensions'][$extName] = [
@@ -93,6 +93,7 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 					'enabled' => 'Enabled',
 					'note' => $isMandatory ? 'This extension cannot be disabled.' : '',
 					'details' => $this->buildDetailsLine( $extData['details'] ),
+					'description' => $this->getPropValue( 'description', $extData['details'] ),
 				],
 				'checkbox' => [
 					'disabled' => $isMandatory || !$extData['exists'] ? ' disabled="disabled"' : '',

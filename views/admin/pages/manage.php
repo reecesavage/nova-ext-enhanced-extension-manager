@@ -21,6 +21,9 @@ error_reporting(E_ALL);
 	<tr class="<?php echo $extData['classes']?>">
 		<td class="ext-ExtensionManager-cell-name">
 			<strong class="fontMedium"><?php echo $extName; ?></strong>
+<?php if ( $extData['labels']['description'] ) { ?>
+			<p class="fontSmall gray"><?php echo $extData['labels']['description'];?></p>
+<?php } ?>
 			<p class="fontSmall gray"><?php echo $extData['labels']['details'];?></p>
 		</td>
 		<td class="ext-ExtensionManager-cell-availability"><?php echo $extData['labels']['availability']; ?></span></td>

@@ -28,8 +28,10 @@ class ExtensionManager {
 
 		foreach ( $saved as $extName ) {
 			$newDefinition[$extName] = [
+				'name' => $extName,
 				'exists' => in_array( $extName, $available ),
 				'enabled' => true,
+				'mandatory' => in_array( $extName, $this->mandatoryExtensions ),
 				'details' => $this->getExtensionDetails( $extName ),
 			];
 		}
@@ -40,12 +42,28 @@ class ExtensionManager {
 		foreach ( $available as $extName ) {
 			if ( !isset( $newDefinition[$extName] ) ) {
 				$newDefinition[$extName] = [
+					'name' => $extName,
 					'exists' => true,
 					'enabled' => false,
+					'mandatory' => in_array( $extName, $this->mandatoryExtensions ),
 					'details' => $this->getExtensionDetails( $extName ),
 				];
 			}
 		}
+
+		// Sort by
+		// - Mandatory first
+		// - Alphabetical
+		uasort( $newDefinition, function ( $a, $b ) {
+			$mandatoryOrder = (
+				(int)( $b['mandatory'] ) - (int)( $a['mandatory'] )
+			);
+			$alphabeticalOrder = (
+				(int)( $b['name'] ) - (int)( $a['name'] )
+			);
+
+			return $mandatoryOrder !== 0 ? $mandatoryOrder : $alphabeticalOrder;
+		} );
 
 		return $newDefinition;
 	}
