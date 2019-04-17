@@ -1,6 +1,6 @@
 {
 	"name": "ExtensionManager",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "An extension that provides a graphical interface to manage other Nova extensions.",
 	"url": "https://github.com/mooeypoo/Nova-ExtensionManager",
 	"author": {

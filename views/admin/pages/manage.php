@@ -20,6 +20,9 @@
 					<?php echo form_close(); ?>
 				<?php } ?>
 			</div>
+<?php if ( $extData['note'] ) { ?>
+			<div class="ext-extensionManager-box-content-note fontSmall gray"><?php echo $extData['note']; ?></div>
+<?php } ?>
 			<div class="ext-extensionManager-box-content-details fontSmall gray"><?php echo $extData['details']; ?></div>
 		</div>
 	</div>
