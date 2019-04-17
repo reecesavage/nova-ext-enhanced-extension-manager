@@ -17,6 +17,35 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 		$this->_regions['nav_sub'] = Menu::build('adminsub', 'manageext');
 	}
 
+	public function toggle( $extensionName ) {
+		$extensionName = urldecode( $extensionName );
+		if ( isset( $_POST['submit'] ) ) {
+			$action = $_POST['action'];
+			$enabledExtensions = $this->manager->getCurrentValue();
+			if (
+				$action === 'disable' ||
+				$action === 'remove'
+			) {
+				// Already in; disable it
+				array_splice(
+					$enabledExtensions,
+					array_search( $extensionName, $enabledExtensions ),
+					1
+				);
+			} else if ( $action === 'enable' ) {
+				// Add it in
+				$enabledExtensions[] = $extensionName;
+			}
+			// Save the new setting
+			$this->manager->updateSettings( $enabledExtensions );
+		}
+
+		// We are doing this through its own entrypoint and a redirect
+		// so that when the user finishes the "reload" after update, the system
+		// already loaded or disabled the extension through the config.
+		redirect( 'extensions/ExtensionManager/Manage/manage' );
+	}
+
 	/**
 	 * Displays a list of available extensions with their details
 	 * and the enable/disable states, allowing the user to change the
@@ -27,10 +56,9 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 			// TODO: SRSLY, i18n... !!!!
 			'header' => 'Manage Extensions',
 			'labels' => [
-				'extension_name' => 'Extension name',
-				'extension_status' => 'Status',
-				'extension_availability' => 'Availability',
-				'extension_note' => 'Note',
+				'status_missing' => 'Missing',
+				'status_inactive' => 'Inactive',
+				'status_active' => 'Active',
 			],
 			'buttons' => [
 				'apply' => [
@@ -41,6 +69,33 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 					'id' => 'extensions-apply',
 					// TODO: SRSLY, i18n... !!!!
 					'content' => 'Apply'
+				],
+				'enable' => [
+					'type' => 'submit',
+					'class' => 'button-sec',
+					'name' => 'submit',
+					'value' => 'enable',
+					'id' => 'extensions-enable',
+					// TODO: SRSLY, i18n... !!!!
+					'content' => 'Enable extension'
+				],
+				'disable' => [
+					'type' => 'submit',
+					'class' => 'button-main',
+					'name' => 'submit',
+					'value' => 'disable',
+					'id' => 'extensions-disable',
+					// TODO: SRSLY, i18n... !!!!
+					'content' => 'Disable extension'
+				],
+				'remove' => [
+					'type' => 'submit',
+					'class' => 'button-sec',
+					'name' => 'submit',
+					'value' => 'remove',
+					'id' => 'extensions-remove',
+					// TODO: SRSLY, i18n... !!!!
+					'content' => 'Remove from list'
 				]
 			]
 		];
@@ -53,36 +108,37 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 			$isMandatory = $extData['mandatory'];
 			$enabled = ( $isMandatory || $extData['enabled'] ) && $extData['exists'];
 
-			$data['extensions'][$extName] = [
-				'labels' => [
-					// TODO: Use i18n!!!!!
-					'availability' => $extData['exists'] ? 'Available' : 'Unavailable',
-					'enabled' => 'Enabled',
-					'note' => $isMandatory ? 'This extension cannot be disabled.' : '',
-					'details' => $this->buildDetailsLine( $extData['details'] ),
-					'description' => $this->getPropValue( 'description', $extData['details'] ),
-				],
-				'checkbox' => [
-					'disabled' => $isMandatory || !$extData['exists'] ? ' disabled="disabled"' : '',
-					'value' => $extData['enabled'], // Remember saved value
-				],
-				'classes' => '',
-				'mandatory' => $isMandatory,
-			];
-
-			$classes[] = $extData['exists'] ? 'ext-ExtensionManager-exists' : 'ext-ExtensionManager-noexist';
+			$classes = [];
 			if ( $isMandatory ) {
-				$classes[] = 'ext-ExtensionManager-mandatory';
+				$classes[] = 'ext-extensionManager-mandatory';
 			}
-			$classes[] = $enabled ? 'ext-ExtensionManager-enabled' : 'ext-ExtensionManager-disabled';
-			$data['extensions'][$extName]['classes'] = join( ' ', $classes );
+			$classes[] = $enabled ? 'ext-extensionManager-enabled' : 'ext-extensionManager-disabled';
+			$classes[] = $extData['exists'] ? 'ext-extensionManager-available' : 'ext-extensionManager-missing';
+
+			$data['extensions'][$extName] = [
+				'title' => $extName,
+				'description' => $extData['details']['description'],
+				'note' => $isMandatory ? 'This extension cannot be disabled.' : '',
+				'details' => $this->buildDetailsLine( $extData['details'] ),
+				'status' => [
+					'available' => $extData['exists'] ? 'Available' : 'Missing',
+					'enabled' => $enabled ? 'Enabled' : 'Disabled',
+				],
+				'mandatory' => (int)$isMandatory,
+				'action' => $extData['exists'] ?
+					( $enabled ? 'disable' : 'enable' ) : 'remove',
+				'button' => $extData['exists'] ?
+					( $enabled ? $data['buttons']['disable'] : $data['buttons']['enable'] ) :
+					$data['buttons']['remove'],
+				'classes' => join( ' ', $classes ),
+			];
 		}
 
 		// Render the template
 		$this->_regions['title'] = 'Manage Extensions';
 		$this->_regions['content'] = $this->extension['ExtensionManager']->view('manage', $this->skin, 'admin', $data);
 		$this->_regions['javascript'] .= $this->extension['ExtensionManager']->inline_css('manage', 'admin', $data);
-		// $this->_regions['javascript'] .= $this->extension['ExtensionManager']->inline_js('manage', $this->skin, 'admin', $data);
+		// $this->_regions['javascript'] .= $this->extension['ExtensionManager']->inline_js('manage' 'admin', $data);
 		Template::assign($this->_regions);
 		Template::render();
 	}

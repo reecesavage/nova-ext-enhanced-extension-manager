@@ -71,6 +71,9 @@ class ExtensionManager {
 		return $newDefinition;
 	}
 
+	public function getCurrentValue() {
+		return $this->sys->getValueFromSettings();
+	}
 	/**
 	 * Update the setting value and store
 	 *
