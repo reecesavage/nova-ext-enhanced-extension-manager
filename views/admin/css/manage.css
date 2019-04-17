@@ -61,3 +61,10 @@
 	text-align: center;
 	min-height: 1.5em;
 }
+
+.ext-extensionManager-heart {
+	color: #f15353;
+}
+.ext-extensionManager-credits {
+	margin-top: 2em;
+}

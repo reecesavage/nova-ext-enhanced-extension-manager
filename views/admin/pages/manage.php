@@ -27,3 +27,10 @@
 		</div>
 	</div>
 <?php } ?>
+</div>
+
+<div class="ext-extensionManager-credits fontSmall">
+	<a href="https://github.com/mooeypoo/Nova-ExtensionManager" target="_blank">ExtensionManager</a> |
+	Developed with <span class="ext-extensionManager-heart">&hearts;</span> by <a href="http://moriel.smarterthanthat.com/" target="_blank">mooeypoo</a> |
+	<a href="https://github.com/mooeypoo/Nova-ExtensionManager/issues" target="_blank">Click to report bugs and feature requests</a>
+</div>
