@@ -55,17 +55,13 @@ class ExtensionManager {
 		}
 
 		// Sort by
-		// - Mandatory first
 		// - Alphabetical
+		ksort( $newDefinition );
+		// - Bring mandatory to top
 		uasort( $newDefinition, function ( $a, $b ) {
-			$mandatoryOrder = (
+			return (
 				(int)( $b['mandatory'] ) - (int)( $a['mandatory'] )
 			);
-			$alphabeticalOrder = (
-				(int)( $b['name'] ) - (int)( $a['name'] )
-			);
-
-			return $mandatoryOrder !== 0 ? $mandatoryOrder : $alphabeticalOrder;
 		} );
 
 		return $newDefinition;
