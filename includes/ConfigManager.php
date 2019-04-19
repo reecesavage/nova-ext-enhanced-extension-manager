@@ -14,6 +14,8 @@ class ConfigManager {
 	function __construct() {
 		$this->ci =& get_instance();
 		$this->sys = new System();
+		$this->sys->install(); // No-op or install
+
 
 		// Load settings model
 		$this->ci->load->model('settings_model', 'settings');

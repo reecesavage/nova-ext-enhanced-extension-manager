@@ -104,4 +104,42 @@ class System {
 
 		return $dirs;
 	}
+
+
+	/**
+	 * Install the necessary menu items, if they don't exist yet
+	 */
+	public function install() {
+		$this->ci->load->model('menu_model');
+		$expectedLink = 'extensions/ExtensionManager/Manage/';
+		$cat = $this->ci->menu_model->get_menu_category( 'manageext' );
+
+		if ( $cat === false ) {
+			// Add the category and the menu items
+			$insertCat = $this->ci->menu_model->add_menu_category( [
+				'menucat_menu_cat' => 'manageext',
+				'menucat_name' => 'Manage Extensions',
+				'menucat_type' => 'adminsub',
+				'menucat_order' => 7
+			] );
+
+			// Add item
+			$insertItem = $this->ci->menu_model->add_menu_item( [
+				'menu_name' => 'Manage Extensions',
+				'menu_group' => 0,
+				'menu_order' => 0,
+				'menu_sim_type' => 1,
+				'menu_link' => $expectedLink . 'manage',
+				'menu_link_type' => 'onsite',
+				'menu_need_login' => 'none',
+				'menu_use_access' => 'y',
+				'menu_access' => 'site/settings',
+				'menu_access_level' => 0,
+				'menu_display' => 'y',
+				'menu_type' => 'adminsub',
+				'menu_cat' => 'manageext',
+			] );
+		}
+	}
+
 }

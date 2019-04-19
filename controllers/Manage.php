@@ -12,8 +12,6 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 		$this->manager = new \ExtensionManager\ExtensionManager();
 		$this->mandatoryExtensions = [ 'ExtensionManager' ];
 
-		$this->install(); // No-op or install
-
 		$this->_regions['nav_sub'] = Menu::build('adminsub', 'manageext');
 	}
 
@@ -238,43 +236,5 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 		}
 
 		return join( ' | ', $out );
-	}
-
-	/**
-	 * Install the necessary menu items, if they don't exist yet
-	 *
-	 * TODO: This should probably be in a model...?
-	 */
-	protected function install() {
-		$this->load->model('menu_model');
-		$expectedLink = 'extensions/ExtensionManager/Manage/';
-		$cat = $this->menu_model->get_menu_category( 'manageext' );
-
-		if ( $cat === false ) {
-			// Add the category and the menu items
-			$insertCat = $this->menu_model->add_menu_category( [
-				'menucat_menu_cat' => 'manageext',
-				'menucat_name' => 'Manage Extensions',
-				'menucat_type' => 'adminsub',
-				'menucat_order' => 7
-			] );
-
-			// Add item
-			$insertItem = $this->menu_model->add_menu_item( [
-				'menu_name' => 'Manage Extensions',
-				'menu_group' => 0,
-				'menu_order' => 0,
-				'menu_sim_type' => 1,
-				'menu_link' => $expectedLink . 'manage',
-				'menu_link_type' => 'onsite',
-				'menu_need_login' => 'none',
-				'menu_use_access' => 'y',
-				'menu_access' => 'site/settings',
-				'menu_access_level' => 0,
-				'menu_display' => 'y',
-				'menu_type' => 'adminsub',
-				'menu_cat' => 'manageext',
-			] );
-		}
 	}
 }
