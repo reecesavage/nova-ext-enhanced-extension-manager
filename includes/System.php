@@ -105,7 +105,6 @@ class System {
 		return $dirs;
 	}
 
-
 	/**
 	 * Install the necessary menu items, if they don't exist yet
 	 */
