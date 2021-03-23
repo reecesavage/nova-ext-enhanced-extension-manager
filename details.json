@@ -1,11 +1,19 @@
 {
-	"name": "ExtensionManager",
-	"version": "1.0.3",
-	"description": "An extension that provides a graphical interface to manage other Nova extensions.",
-	"url": "https://github.com/mooeypoo/Nova-ExtensionManager",
+	"name": "Enhanced Extension Manager",
+	"version": "1.0.0",
+	"description": "An extension that can manage other extensions with a visual interface.",
+	"url": "https://github.com/reecesavage/nova-ext-enhanced-extension-manager",
 	"author": {
-		"name": "Moriel Schottlender",
-		"email": "mooeypoo@gmail.com",
-		"url": "http://moriel.smarterthanthat.com/"
-	}
+		"name": "Sim Central",
+		"email": "info@simcentral.org",
+		"url": "https://simcentral.org"
+	},
+	"folder": "ExtensionManager",
+	"requiredExtensions": [
+		
+	],
+	"configFiles": [
+		
+	],
+	"upgradeable": "yes"
 }

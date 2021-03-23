@@ -79,4 +79,112 @@ class ExtensionManager {
 	public function updateSettings( $value ) {
 		return $this->sys->updateSettings( $value );
 	}
+
+    // check if we can disable the extension 
+	public function checkRequiredDisableExtension($enabledExtensions,$extensionName)
+	{    
+		$inRequired['status']='NOK';
+       if (!empty($enabledExtensions)) {
+
+       	foreach ($enabledExtensions as $extension)
+       	{
+       	  $extData= $this->sys->getExtensionDetails( $extension );
+          if(!empty($extData))
+          {
+             $requiredExtensions = isset($extData['requiredExtensions'])?$extData['requiredExtensions']:[];
+             
+             if(!empty($requiredExtensions))
+             {
+                if(in_array($extensionName, $requiredExtensions)){
+                   $inRequired['status']='OK';
+                   $inRequired['data'][]=$extension;
+                }
+             }
+          }
+
+
+       }
+
+
+   }
+    return $inRequired;
+ }
+
+
+ public function checkRequiredEnableExtension($enabledExtensions,$extensionName)
+ {
+     $inRequired['status']='NOK';
+
+     if (!empty($extensionName)) {
+          $extData= $this->sys->getExtensionDetails( $extensionName );
+        
+        if(!empty($extData))
+        {
+
+        	$requiredExtensions = isset($extData['requiredExtensions'])?$extData['requiredExtensions']:[];
+        	 if(!empty($requiredExtensions))
+             {
+                foreach ($requiredExtensions as $extension)
+       	        { 
+                  
+                  if(!in_array($extension, $enabledExtensions)){
+                   $inRequired['status']='OK';
+                   $inRequired['data'][]=$extension;
+                }
+
+       	        }
+             }
+
+          
+        }
+     }
+    
+     return $inRequired;
+ }
+
+
+ public function enableUpdateExtension($extension)
+ {   
+
+ 	$this->ci->db->select('*');
+    $this->ci->db->from('menu_items');
+    $this->ci->db->like('menu_link', $extension);
+    $query = $this->ci->db->get();
+    $item = ($query->num_rows() > 0) ? $query->row() : false;   
+      if(!empty($item)){
+          if($item->menu_display=='n')
+          {
+             
+        $this->ci->db->where('menu_id', $item->menu_id);
+        $this->ci->db->update('menu_items', ['menu_display'=>'y']);
+        $this->ci->dbutil->optimize_table('menu_items');
+
+
+          }
+      }
+ }
+
+
+
+  public function disableUpdateExtension($extension)
+ {   
+
+ 	$this->ci->db->select('*');
+    $this->ci->db->from('menu_items');
+    $this->ci->db->like('menu_link', $extension);
+    $query = $this->ci->db->get();
+    $item = ($query->num_rows() > 0) ? $query->row() : false;
+ 
+      if(!empty($item)){
+          if($item->menu_display==='y')
+          {
+             
+        $this->ci->db->where('menu_id', $item->menu_id);
+        $this->ci->db->update('menu_items', ['menu_display'=>'n']);
+        $this->ci->dbutil->optimize_table('menu_items');
+
+
+          }
+      }
+ }
 }

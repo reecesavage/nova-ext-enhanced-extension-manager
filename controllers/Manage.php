@@ -1,8 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-require_once MODPATH.'core/libraries/Nova_controller_main.php';
+require_once MODPATH.'core/libraries/Nova_controller_admin.php';
 require_once __DIR__ . '/../includes/ExtensionManager.php';
 
-class __extensions__ExtensionManager__Manage extends Nova_controller_main {
+class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
 	protected $manager;
 	protected $mandatoryExtensions;
 
@@ -17,25 +17,68 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 
 	public function toggle( $extensionName ) {
 		$extensionName = urldecode( $extensionName );
+
+
 		if ( isset( $_POST['submit'] ) ) {
 			$action = $_POST['action'];
 			$enabledExtensions = $this->manager->getCurrentValue();
+            
 			if (
 				$action === 'disable' ||
 				$action === 'remove'
 			) {
 				// Already in; disable it
-				array_splice(
+
+				$disableExtension= $this->manager->checkRequiredDisableExtension($enabledExtensions,$extensionName);
+
+
+				if($disableExtension['status']=='NOK')
+				{
+                     array_splice(
 					$enabledExtensions,
 					array_search( $extensionName, $enabledExtensions ),
 					1
 				);
+                    $this->manager->updateSettings( $enabledExtensions );
+                    $this->manager->disableUpdateExtension( $extensionName );
+                    
+                    $this->session->set_flashdata('success', "$extensionName extension was successfully disabled.");
+
+				}else {
+                    $message= implode(',', $disableExtension['data']);
+                    $this->session->set_flashdata('error', "$extensionName extension is used in $message extensions. You can't disable it.");
+				}
+
+
+				
 			} else if ( $action === 'enable' ) {
 				// Add it in
-				$enabledExtensions[] = $extensionName;
+
+              $enableExtension= $this->manager->checkRequiredEnableExtension($enabledExtensions,$extensionName);
+
+              if($enableExtension['status']=='NOK')
+				{
+                  
+
+                   $enabledExtensions[] = $extensionName;
+                   // Save the new setting
+				$this->manager->updateSettings( $enabledExtensions );
+				$this->manager->enableUpdateExtension( $extensionName );
+                
+
+
+				$this->session->set_flashdata('success', "$extensionName extension was successfully enabled.");
+
+				}else {
+                      $message= implode(',', $enableExtension['data']);
+                    $this->session->set_flashdata('error', "$message extension need to enable before $extensionName extension.");
+				}
+               
+
+				
 			}
-			// Save the new setting
-			$this->manager->updateSettings( $enabledExtensions );
+			
+			
 		}
 
 		// We are doing this through its own entrypoint and a redirect
@@ -99,6 +142,10 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 		];
 
 		$definition = $this->manager->getFullDefinition();
+         
+           
+
+           
 
 		$data['extensions'] = [];
 		foreach ( $definition as $extName => $extData ) {
@@ -122,6 +169,8 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 					'available' => $extData['exists'] ? 'Available' : 'Missing',
 					'enabled' => $enabled ? 'Enabled' : 'Disabled',
 				],
+				'version'=>isset($extData['details']['version'])?$extData['details']['version']:'',
+				'repository'=>isset($extData['details']['url'])?$extData['details']['url']:'',
 				'mandatory' => (int)$isMandatory,
 				'action' => $extData['exists'] ?
 					( $enabled ? 'disable' : 'enable' ) : 'remove',
@@ -136,7 +185,7 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 		$this->_regions['title'] = 'Manage Extensions';
 		$this->_regions['content'] = $this->extension['ExtensionManager']->view('manage', $this->skin, 'admin', $data);
 		$this->_regions['javascript'] .= $this->extension['ExtensionManager']->inline_css('manage', 'admin', $data);
-		// $this->_regions['javascript'] .= $this->extension['ExtensionManager']->inline_js('manage' 'admin', $data);
+		 $this->_regions['javascript'] .= $this->extension['ExtensionManager']->inline_js('manage', 'admin', $data);
 		Template::assign($this->_regions);
 		Template::render();
 	}
@@ -146,6 +195,8 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 	 * Redirects to manage() page
 	 */
 	public function save() {
+
+
 		// On submit, save the enabled extensions
 		if (isset($_POST['submit'])) {
 			$enabled = isset( $_POST[ 'enabled_extension' ] ) ?
@@ -215,13 +266,15 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 			return '';
 		}
 
-		$val = $this->getPropValue( 'version', $details );
-		if ( $val ) {
-			$out[] = $val;
-		}
+		
 
 		$author = $this->getPropValue( 'author', $details );
+
+
+
 		if ( $author && $this->getPropValue( 'name', $author ) ) {
+
+
 			$url = $this->getPropValue( 'url', $author );
 			if ( $url ) {
 				$out[] = '<a href="'.$url.'" target="_blank">' . $author['name'] . '</a>';
@@ -230,10 +283,11 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_main {
 			}
 		}
 
-		$url = $this->getPropValue( 'url', $details );
-		if ( $url ) {
-			$out[] = '<a href="'.$url.'" target="_blank">Site</a>';
+			$val = $this->getPropValue( 'email', $author );
+		if ( $val ) {
+			$out[] = $val;
 		}
+		
 
 		return join( ' | ', $out );
 	}

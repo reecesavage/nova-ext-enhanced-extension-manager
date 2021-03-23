@@ -121,6 +121,11 @@ class System {
 				'menucat_type' => 'adminsub',
 				'menucat_order' => 7
 			] );
+		}
+
+		$query = $this->ci->db->get_where('menu_items', array('menu_name' => 'Manage Extensions'));
+    $item = ($query->num_rows() > 0) ? $query->row() : false;   
+      if($item==false){
 
 			// Add item
 			$insertItem = $this->ci->menu_model->add_menu_item( [
