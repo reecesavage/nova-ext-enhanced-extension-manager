@@ -187,4 +187,45 @@ class ExtensionManager {
           }
       }
  }
+
+
+ public function getExtensionDetail( $extName ) {
+		$extDetailsFilePath = APPPATH.'extensions/ExtensionManager/upload/'.$extName.'/details.json';
+		if ( !file_exists( $extDetailsFilePath ) ) {
+			return [];
+		}
+
+		// Go over the extensions folder
+		$file = file_get_contents( $extDetailsFilePath );
+		$details = json_decode( $file, true );
+
+		return $details;
+	}
+
+
+	public function moveExtension($extName)
+	{
+
+
+       $details= $this->sys->getExtensionDetails( $extName );
+       $moveFileName=$extensions;
+       if(!empty($details))
+       {
+       	$version= isset($details['version'])?$details['version']:'';
+       	$moveFileName = $extName.'-'.$version;
+       }
+
+       $src=  APPPATH.'extensions/'.$extName.'/';
+       $dst= APPPATH.'extensions/ExtensionManager/backup/'.$moveFileName.'/';
+      
+       $this->sys->rcopy($src, $dst);
+       $this->sys->rrmdir($src);
+
+       $dst=  APPPATH.'extensions/'.$extName.'/';
+       $src= APPPATH.'extensions/ExtensionManager/upload/'.$extName.'/';
+       $this->sys->rcopy($src, $dst);
+       $this->sys->rrmdir($src);
+	}
+
+
 }

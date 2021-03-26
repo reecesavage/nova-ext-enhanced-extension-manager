@@ -137,15 +137,22 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
 					'id' => 'extensions-remove',
 					// TODO: SRSLY, i18n... !!!!
 					'content' => 'Remove from list'
+				],
+				'upload' => [
+					'type' => 'submit',
+					'class' => 'button-main',
+					'name' => 'submit',
+					'value' => 'upload',
+					'id' => 'extensions-upload',
+					// TODO: SRSLY, i18n... !!!!
+					'content' => 'Upload Zip'
 				]
 			]
 		];
 
 		$definition = $this->manager->getFullDefinition();
          
-           
-
-           
+          
 
 		$data['extensions'] = [];
 		foreach ( $definition as $extName => $extData ) {
@@ -170,6 +177,8 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
 					'enabled' => $enabled ? 'Enabled' : 'Disabled',
 				],
 				'version'=>isset($extData['details']['version'])?$extData['details']['version']:'',
+				'required_extension'=>(isset($extData['details']['requiredExtensions']) && is_array($extData['details']['requiredExtensions']))?implode(',', $extData['details']['requiredExtensions']):'',
+
 				'repository'=>isset($extData['details']['url'])?$extData['details']['url']:'',
 				'mandatory' => (int)$isMandatory,
 				'action' => $extData['exists'] ?
@@ -177,9 +186,16 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
 				'button' => $extData['exists'] ?
 					( $enabled ? $data['buttons']['disable'] : $data['buttons']['enable'] ) :
 					$data['buttons']['remove'],
+
+					'upload'=>$data['buttons']['upload'],
+
 				'classes' => join( ' ', $classes ),
 			];
+           
+
 		}
+
+		
 
 		// Render the template
 		$this->_regions['title'] = 'Manage Extensions';
@@ -188,6 +204,98 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
 		 $this->_regions['javascript'] .= $this->extension['ExtensionManager']->inline_js('manage', 'admin', $data);
 		Template::assign($this->_regions);
 		Template::render();
+	}
+
+
+	public function upload($extensionName)
+	{
+		$extensionName = urldecode( $extensionName );
+
+		if ( isset( $_POST['submit'] ) ) {
+         
+           $uploadPath=   dirname(__FILE__).'/../upload/';
+           $tmp_file = $_FILES['upload_file']['tmp_name'];
+          $name= $_FILES['upload_file']['name'];
+          if (move_uploaded_file($tmp_file, $uploadPath.$name)) {
+           $uploadFile =  dirname(__FILE__).'/../upload/'.$name;
+            if (file_exists( $uploadFile ) ) { 
+                $zip = new ZipArchive;
+				$res = $zip->open($uploadFile);
+				if ($res === TRUE) {
+  				$zip->extractTo($uploadPath);
+  				$zip->close();
+  				
+                $extensionFile= dirname(__FILE__)."/../upload/$extensionName";
+                 if (file_exists( $extensionFile ) ) { 
+                    
+                   $details= $this->manager->getExtensionDetail( $extensionName );
+
+                   if(!empty($details))
+                   	{
+
+                   		
+                   		$folder = isset($details['folder'])?$details['folder']:$extensionName;
+                      $upgradeable= isset($details['upgradeable'])?$details['upgradeable']:'no';
+                      if($upgradeable=='no')
+                      {
+                         
+                         $this->manager->moveExtension( $folder );
+
+
+                      }else {
+
+                      	  $configFiles= isset($details['configFiles'])?$details['configFiles']:[];
+                      	  if($configFiles)
+                      	  { 
+                      	  	 
+                      	  	foreach ($configFiles as $configFile)
+                      	  	{   
+                                $src=  APPPATH.'extensions/'.$folder.'/'.$configFile;
+                                $des= APPPATH.'extensions/ExtensionManager/upload/'.$folder.'/'.$configFile;
+                                if ( file_exists( $src) ) {
+									
+                                  copy($src,$desc);
+
+								}
+
+                      	  	}
+                      	  }
+                          $this->manager->moveExtension( $folder );
+                      }
+                   	}else {
+                     $error='detail.json not found';
+                   	} 
+
+                 }else {
+                 	 $error='Upload the zip file in correct extension';
+                 }
+                
+                } else {
+                  $error='Unzip is not successful';
+                }
+
+              }else {
+              	$error='Zip file does not exists';
+              }
+
+		  }
+         else {
+         $error="File not uploaded";
+
+        
+       }
+
+		   
+        if(isset($error))
+        {
+          $this->session->set_flashdata('error', "$error");
+        }else {
+        	$this->session->set_flashdata('success', "Extension updated successfully");
+        }
+    }
+
+        
+		redirect( 'extensions/ExtensionManager/Manage/manage' );
 	}
 
 	/**

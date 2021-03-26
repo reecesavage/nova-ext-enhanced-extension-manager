@@ -1,27 +1,3 @@
-.ext-extensionManager-container {
-	display: flex;
-	flex-wrap: wrap;
-}
-
-.ext-extensionManager-box {
-	padding: 0;
-	margin: 1em;
-	display: flex;
-	flex-direction: column;
-	width: 300px;
-	min-height: 200px;
-	border: 1px #666 solid;
-	border-radius: 1em;
-}
-
-.ext-extensionManager-box-title {
-	width: 100%;
-	text-align: center;
-}
-
-.ext-extensionManager-box-status {
-	text-align: center;
-}
 .ext-extensionManager-disabled .ext-extensionManager-box-status-enabled {
 	color: #ccc;
 }
@@ -36,31 +12,6 @@
 	font-weight: bold;
 }
 
-.ext-extensionManager-box-content {
-	display: flex;
-	flex-direction: column;
-	flex-grow: 1;
-	width: 100%;
-}
-.ext-extensionManager-box-content-description {
-	flex-grow: 1;
-	padding: 0.5em;
-}
-
-.ext-extensionManager-box-content-actions {
-	text-align: center;
-	padding: 0.5em 0;
-}
-.ext-extensionManager-box-content-note {
-	text-align: center;
-}
-
-.ext-extensionManager-box-content-details {
-	border-top: 1px solid #666;
-	padding: 0.5em;
-	text-align: center;
-	min-height: 1.5em;
-}
 
 .ext-extensionManager-heart {
 	color: #f15353;
