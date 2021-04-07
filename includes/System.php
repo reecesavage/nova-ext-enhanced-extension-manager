@@ -1,5 +1,5 @@
 <?php
-namespace ExtensionManager;
+namespace ext_nova_enhanced_extension_manager;
 
 class System {
 	protected $ci;
@@ -26,7 +26,7 @@ class System {
 				'setting_key' => $name,
 				'setting_label' => 'ExtensionManager setting key. ** DO NOT CHANGE THIS VALUE DIRECTLY **',
 				// Minimal value includes the ExtensionManager itself
-				'setting_value' => json_encode( [ 'ExtensionManager' ] )
+				'setting_value' => json_encode( [ 'ext_nova_enhanced_extension_manager' ] )
 			] );
 		}
 	}
@@ -110,7 +110,7 @@ class System {
 	 */
 	public function install() {
 		$this->ci->load->model('menu_model');
-		$expectedLink = 'extensions/ExtensionManager/Manage/';
+		$expectedLink = 'extensions/ext_nova_enhanced_extension_manager/Manage/';
 		$cat = $this->ci->menu_model->get_menu_category( 'manageext' );
 
 		if ( $cat === false ) {

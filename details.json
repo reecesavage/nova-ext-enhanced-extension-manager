@@ -8,7 +8,7 @@
 		"email": "info@simcentral.org",
 		"url": "https://simcentral.org"
 	},
-	"folder": "ExtensionManager",
+	"folder": "ext_nova_enhanced_extension_manager",
 	"requiredExtensions": [
 		
 	],

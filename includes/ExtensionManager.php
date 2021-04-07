@@ -1,12 +1,12 @@
 <?php
-namespace ExtensionManager;
+namespace ext_nova_enhanced_extension_manager;
 
 require_once( dirname( dirname(__FILE__) ) . '/includes/System.php' );
 
 class ExtensionManager {
 	protected $ci;
 	protected $sys;
-	protected $mandatoryExtensions = [ 'ExtensionManager' ];
+	protected $mandatoryExtensions = [ 'ext_nova_enhanced_extension_manager' ];
 
 	function __construct() {
 		$this->ci =& get_instance();
@@ -31,13 +31,18 @@ class ExtensionManager {
 		$available = $this->sys->getExtensionsOnDisk();
 
 		foreach ( $saved as $extName ) {
+			$details=$this->sys->getExtensionDetails( $extName );
+		
+            if(!empty($details))
+            {
 			$newDefinition[$extName] = [
-				'name' => $extName,
+				'name' => isset($details['name'])?$details['name']:$extName,
 				'exists' => in_array( $extName, $available ),
 				'enabled' => true,
 				'mandatory' => in_array( $extName, $this->mandatoryExtensions ),
-				'details' => $this->sys->getExtensionDetails( $extName ),
+				'details' => $details,
 			];
+			}
 		}
 
 		// Go over available extensions and see if there's any
@@ -45,14 +50,18 @@ class ExtensionManager {
 		// Validate with extensions on the server/disk
 		foreach ( $available as $extName ) {
 			if ( !isset( $newDefinition[$extName] ) ) {
+				$details=$this->sys->getExtensionDetails( $extName );
+                 if(!empty($details))
+            {
 				$newDefinition[$extName] = [
-					'name' => $extName,
+					'name' => isset($details['name'])?$details['name']:$extName,
 					'exists' => true,
 					'enabled' => false,
 					'mandatory' => in_array( $extName, $this->mandatoryExtensions ),
-					'details' => $this->sys->getExtensionDetails( $extName ),
+					'details' => $details,
 				];
 			}
+		}
 		}
 
 		// Sort by
@@ -190,7 +199,7 @@ class ExtensionManager {
 
 
  public function getExtensionDetail( $extName ) {
-		$extDetailsFilePath = APPPATH.'extensions/ExtensionManager/upload/'.$extName.'/details.json';
+		$extDetailsFilePath = APPPATH.'extensions/ext_nova_enhanced_extension_manager/upload/'.$extName.'/details.json';
 		if ( !file_exists( $extDetailsFilePath ) ) {
 			return [];
 		}
@@ -208,24 +217,78 @@ class ExtensionManager {
 
 
        $details= $this->sys->getExtensionDetails( $extName );
-       $moveFileName=$extensions;
+       $time= time();
+       $moveFileName=$extensions.'-'.$time;
        if(!empty($details))
        {
        	$version= isset($details['version'])?$details['version']:'';
-       	$moveFileName = $extName.'-'.$version;
+       	$moveFileName = $extName.'-'.$version.'-'.$time;
        }
 
        $src=  APPPATH.'extensions/'.$extName.'/';
-       $dst= APPPATH.'extensions/ExtensionManager/backup/'.$moveFileName.'/';
+       $backupFolder=  APPPATH.'extensions/backup/';
+
+       if (!file_exists($backupFolder)) {
+             mkdir($backupFolder, 0777, true);
+		}
+
+       $dst= APPPATH.'extensions/backup/'.$moveFileName.'/';
       
        $this->sys->rcopy($src, $dst);
        $this->sys->rrmdir($src);
 
        $dst=  APPPATH.'extensions/'.$extName.'/';
-       $src= APPPATH.'extensions/ExtensionManager/upload/'.$extName.'/';
+       $src= APPPATH.'extensions/ext_nova_enhanced_extension_manager/upload/'.$extName.'/';
        $this->sys->rcopy($src, $dst);
        $this->sys->rrmdir($src);
 	}
+
+
+	public function GetFilesAndFolder($del=false) {
+    /*Which file want to be escaped, Just add to this array*/
+
+    $Directory= dirname(__FILE__).'/../upload/';
+    $EscapedFiles = [
+        '.',
+        '..',
+
+    ]; 
+
+    $FilesAndFolders = [];
+    /*Scan Files and Directory*/
+    $FilesAndDirectoryList = scandir($Directory);
+    foreach ($FilesAndDirectoryList as $SingleFile) {
+        if (in_array($SingleFile, $EscapedFiles)){
+            continue;
+        }
+
+
+        $ext = pathinfo($SingleFile, PATHINFO_EXTENSION);
+
+        /*Store the Files with Modification Time to an Array*/
+
+        if($ext!='zip')
+        {   
+
+        	if($del==false)
+        	{
+
+        	 $FilesAndFolders[$SingleFile] = filemtime($Directory . '/' . $SingleFile);
+        	}else {
+        		$src= $Directory.$SingleFile;
+        		 $this->sys->rrmdir($src);
+        	}
+        }
+        
+    }
+
+    
+    /*Sort the result as your needs*/
+    arsort($FilesAndFolders);
+    $FilesAndFolders = array_keys($FilesAndFolders);
+
+    return ($FilesAndFolders) ? $FilesAndFolders : false;
+}
 
 
 }

@@ -19,3 +19,11 @@
 .ext-extensionManager-credits {
 	margin-top: 2em;
 }
+
+.col_250{
+	width: 250px;
+}
+.col_100{
+	width: 150px;
+	padding-left: 50px !important;
+}

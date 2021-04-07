@@ -7,15 +7,15 @@ An extension for Nova2 that adds a graphical interface to manage other extension
 To install this extension, follow these steps:
 
 1. Download the ExtensionManager files from the [latest release](https://github.com/mooeypoo/Nova-ExtensionManager/releases)
-2. Extract the files into the folder `nova/application/extensions/ExtensionManager`
+2. Extract the files into the folder `nova/application/extensions/ext_nova_enhanced_extension_manager`
 3. Find the file `nova/application/config/extensions.php` and add this at the end:
 
 ```
-require_once( dirname( dirname(__FILE__) ) . '/extensions/ExtensionManager/includes/ConfigManager.php' );
-$manager = ( new \ExtensionManager\ConfigManager() )->redefineExtensionConfig( $config['extensions']['enabled'] );
+require_once( dirname( dirname(__FILE__) ) . '/extensions/ext_nova_enhanced_extension_manager/includes/ConfigManager.php' );
+$manager = ( new \ext_nova_enhanced_extension_manager\ConfigManager() )->redefineExtensionConfig( $config['extensions']['enabled'] );
 ```
 
-You should now have a menu item in your admin control panel for "Manage Extensions".
+You should now have a menu item in your admin control panel for "Manage Extensions". 
 
 ## Usage
 This extension is intended to override the 'normal' way other nova2 extensions are installed and are enabled.

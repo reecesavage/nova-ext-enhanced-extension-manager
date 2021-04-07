@@ -20,6 +20,7 @@
 <div class="zebra">
 <?php foreach ( $extensions as $extName => $extData ) {
 
+
  
  ?>
     
@@ -27,17 +28,17 @@
 	<div id="<?php echo $extName;?>" class="padding_p5_0_p5_0">
 		<table class="table100">
          <tr>
-         	<td class="col_150"><?php echo text_output( $extName, 'h2' ); ?></td>
+         	<td class="col_250"><?php echo text_output( $extData['title'], 'h2' ); ?></td>
 
-         	<td class="col_150">
+         	<td class="col_100">
 				<span class="ext-extensionManager-box-status-available"><?php echo $extData['status']['available']; ?></span> |
 			<span class="ext-extensionManager-box-status-enabled"><?php echo $extData['status']['enabled']; ?></span>			
 			</td>
 
-			<td class="col_150">Version: <?=$extData['version']?></td>
+			<td class="col_100">Version: <?=$extData['version']?></td>
 
 			<td class="align_right align_middle col_100">	<?php if ( !$extData['mandatory'] ) { ?>
-					<?php echo form_open( 'extensions/ExtensionManager/Manage/toggle/' . $extName );?>
+					<?php echo form_open( 'extensions/ext_nova_enhanced_extension_manager/Manage/toggle/' . $extName );?>
 					<?php echo form_button( $extData['button'] );?>
 					<?php echo form_hidden( 'action', $extData['action'] );?>
 					<?php echo form_close(); ?>
@@ -73,12 +74,7 @@
 							<tr>
 
 
-					<td class="col_150">	<?php if ( !$extData['mandatory'] ) { ?>
-					<?php echo form_open_multipart( 'extensions/ExtensionManager/Manage/upload/' . $extName );?>
-					  <input type="file" accept=".zip" name="upload_file" required >
-					<?php echo form_button( $extData['upload'] );?>
-					<?php echo form_close(); ?>
-				<?php } ?></td>
+					
 								
 
 							</tr>
@@ -107,8 +103,16 @@
 <?php } ?>
 </div>
 
+
+<div>	
+					<?php echo form_open_multipart( 'extensions/ext_nova_enhanced_extension_manager/Manage/upload/');?>
+					  <input type="file" accept=".zip" name="upload_file" required >
+					<?php echo form_button( $buttons['upload'] );?>
+					<?php echo form_close(); ?>
+				</div>
+
 <div class="ext-extensionManager-credits fontSmall">
-	<a href="https://github.com/reecesavage/nova-ext-enhanced-extension-manager" target="_blank">ExtensionManager</a> |
-	Developed with <span class="ext-extensionManager-heart">&hearts;</span> by <a href="" target="_blank"></a> |
-	<a href="https://github.com/reecesavage/nova-ext-enhanced-extension-manager/issues" target="_blank">Click to report bugs and feature requests</a>
+	<a href="https://github.com/reecesavage/nova-ext-enhanced-extension-manager" target="_blank">Enhanced Extension Manager</a> | Forked from  <a href="https://github.com/mooeypoo/Nova-ExtensionManager">ExtensionManager </a>
+	Enhancements developed by <a href="https://simcentral.org/" target="_blank">Sim Central</a>
+	
 </div>

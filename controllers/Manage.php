@@ -2,15 +2,15 @@
 require_once MODPATH.'core/libraries/Nova_controller_admin.php';
 require_once __DIR__ . '/../includes/ExtensionManager.php';
 
-class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
+class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_controller_admin {
 	protected $manager;
 	protected $mandatoryExtensions;
 
 	public function __construct()
 	{
 		parent::__construct();
-		$this->manager = new \ExtensionManager\ExtensionManager();
-		$this->mandatoryExtensions = [ 'ExtensionManager' ];
+		$this->manager = new \ext_nova_enhanced_extension_manager\ExtensionManager();
+		$this->mandatoryExtensions = [ 'ext_nova_enhanced_extension_manager' ];
 
 		$this->_regions['nav_sub'] = Menu::build('adminsub', 'manageext');
 	}
@@ -84,7 +84,7 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
 		// We are doing this through its own entrypoint and a redirect
 		// so that when the user finishes the "reload" after update, the system
 		// already loaded or disabled the extension through the config.
-		redirect( 'extensions/ExtensionManager/Manage/manage' );
+		redirect( 'extensions/ext_nova_enhanced_extension_manager/Manage/manage' );
 	}
 
 	/**
@@ -154,8 +154,11 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
          
           
 
+
 		$data['extensions'] = [];
 		foreach ( $definition as $extName => $extData ) {
+
+
 			$classes = [];
 			$isMandatory = $extData['mandatory'];
 			$enabled = ( $isMandatory || $extData['enabled'] ) && $extData['exists'];
@@ -168,7 +171,7 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
 			$classes[] = $extData['exists'] ? 'ext-extensionManager-available' : 'ext-extensionManager-missing';
 
 			$data['extensions'][$extName] = [
-				'title' => $extName,
+				'title' => $extData['name'],
 				'description' => $extData['details']['description'],
 				'note' => $isMandatory ? 'This extension cannot be disabled.' : '',
 				'details' => $this->buildDetailsLine( $extData['details'] ),
@@ -187,7 +190,6 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
 					( $enabled ? $data['buttons']['disable'] : $data['buttons']['enable'] ) :
 					$data['buttons']['remove'],
 
-					'upload'=>$data['buttons']['upload'],
 
 				'classes' => join( ' ', $classes ),
 			];
@@ -195,35 +197,57 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
 
 		}
 
+
+    
+
 		
 
 		// Render the template
 		$this->_regions['title'] = 'Manage Extensions';
-		$this->_regions['content'] = $this->extension['ExtensionManager']->view('manage', $this->skin, 'admin', $data);
-		$this->_regions['javascript'] .= $this->extension['ExtensionManager']->inline_css('manage', 'admin', $data);
-		 $this->_regions['javascript'] .= $this->extension['ExtensionManager']->inline_js('manage', 'admin', $data);
+		$this->_regions['content'] = $this->extension['ext_nova_enhanced_extension_manager']->view('manage', $this->skin, 'admin', $data);
+		$this->_regions['javascript'] .= $this->extension['ext_nova_enhanced_extension_manager']->inline_css('manage', 'admin', $data);
+		 $this->_regions['javascript'] .= $this->extension['ext_nova_enhanced_extension_manager']->inline_js('manage', 'admin', $data);
 		Template::assign($this->_regions);
 		Template::render();
 	}
 
 
-	public function upload($extensionName)
+	public function upload()
 	{
-		$extensionName = urldecode( $extensionName );
+		
+
 
 		if ( isset( $_POST['submit'] ) ) {
          
            $uploadPath=   dirname(__FILE__).'/../upload/';
+
+
+           if (!file_exists($uploadPath)) {
+             mkdir($uploadPath, 0777, true);
+			}
+            $this->manager->GetFilesAndFolder(true);
+  				
            $tmp_file = $_FILES['upload_file']['tmp_name'];
-          $name= $_FILES['upload_file']['name'];
+           $name= $_FILES['upload_file']['name'];
+
           if (move_uploaded_file($tmp_file, $uploadPath.$name)) {
            $uploadFile =  dirname(__FILE__).'/../upload/'.$name;
+          
+
+          $folderName= pathinfo($uploadFile, PATHINFO_FILENAME);
             if (file_exists( $uploadFile ) ) { 
                 $zip = new ZipArchive;
 				$res = $zip->open($uploadFile);
 				if ($res === TRUE) {
   				$zip->extractTo($uploadPath);
   				$zip->close();
+
+             
+
+             $lastModified = $this->manager->GetFilesAndFolder();
+  			 
+  			 $extensionName= isset($lastModified['0'])?$lastModified['0']:$folderName;
+                
   				
                 $extensionFile= dirname(__FILE__)."/../upload/$extensionName";
                  if (file_exists( $extensionFile ) ) { 
@@ -233,7 +257,7 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
                    if(!empty($details))
                    	{
 
-                   		
+ 
                    		$folder = isset($details['folder'])?$details['folder']:$extensionName;
                       $upgradeable= isset($details['upgradeable'])?$details['upgradeable']:'no';
                       if($upgradeable=='no')
@@ -251,7 +275,7 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
                       	  	foreach ($configFiles as $configFile)
                       	  	{   
                                 $src=  APPPATH.'extensions/'.$folder.'/'.$configFile;
-                                $des= APPPATH.'extensions/ExtensionManager/upload/'.$folder.'/'.$configFile;
+                                $des= APPPATH.'extensions/ext_nova_enhanced_extension_manager/upload/'.$folder.'/'.$configFile;
                                 if ( file_exists( $src) ) {
 									
                                   copy($src,$desc);
@@ -295,7 +319,7 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
     }
 
         
-		redirect( 'extensions/ExtensionManager/Manage/manage' );
+		redirect( 'extensions/ext_nova_enhanced_extension_manager/Manage/manage' );
 	}
 
 	/**
@@ -342,7 +366,7 @@ class __extensions__ExtensionManager__Manage extends Nova_controller_admin {
 		// We are doing this through its own entrypoint and a redirect
 		// so that when the user finishes the "reload" after update, the system
 		// already loaded or disabled the extension through the config.
-		redirect( 'extensions/ExtensionManager/Manage/manage' );
+		redirect( 'extensions/ext_nova_enhanced_extension_manager/Manage/manage' );
 	}
 
 
