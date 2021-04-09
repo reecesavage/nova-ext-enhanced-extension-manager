@@ -17,8 +17,11 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
 
 	public function toggle( $extensionName ) {
 		$extensionName = urldecode( $extensionName );
+        
+         
+          $name= $this->manager->getExtensionName( $extensionName );
 
-
+        
 		if ( isset( $_POST['submit'] ) ) {
 			$action = $_POST['action'];
 			$enabledExtensions = $this->manager->getCurrentValue();
@@ -42,11 +45,11 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
                     $this->manager->updateSettings( $enabledExtensions );
                     $this->manager->disableUpdateExtension( $extensionName );
                     
-                    $this->session->set_flashdata('success', "$extensionName extension was successfully disabled.");
+                    $this->session->set_flashdata('success', "$name extension was successfully disabled.");
 
 				}else {
                     $message= implode(',', $disableExtension['data']);
-                    $this->session->set_flashdata('error', "$extensionName extension is used in $message extensions. You can't disable it.");
+           $this->session->set_flashdata('error', "$name extension is used in $message extensions. You can't disable it.");
 				}
 
 
@@ -67,11 +70,11 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
                 
 
 
-				$this->session->set_flashdata('success', "$extensionName extension was successfully enabled.");
+				$this->session->set_flashdata('success', "$name extension was successfully enabled.");
 
 				}else {
                       $message= implode(',', $enableExtension['data']);
-                    $this->session->set_flashdata('error', "$message extension need to enable before $extensionName extension.");
+                    $this->session->set_flashdata('error', "$message need to be installed and enabled before $name can be enabled.");
 				}
                
 
@@ -84,6 +87,37 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
 		// We are doing this through its own entrypoint and a redirect
 		// so that when the user finishes the "reload" after update, the system
 		// already loaded or disabled the extension through the config.
+		redirect( 'extensions/ext_nova_enhanced_extension_manager/Manage/manage' );
+	}
+
+	public function config()
+	{
+		if(isset($_POST['submit']))
+		{
+           
+           $directory= isset($_POST['directory'])?$_POST['directory']:[];
+           if(!empty($directory))
+           {  
+
+           	 $extConfigFilePath = dirname(__FILE__) . '/../config.json';
+
+        if (!file_exists($extConfigFilePath))
+        {
+            return [];
+        }
+        $file = file_get_contents($extConfigFilePath);
+        $data['jsons'] = json_decode($file, true);
+        $data['jsons']['setting']['directory']=$directory;
+        $jsonEncode = json_encode($data['jsons'], JSON_PRETTY_PRINT);
+         file_put_contents($extConfigFilePath, $jsonEncode);
+           	  if (!file_exists(APPPATH.$directory)) {
+                 mkdir(APPPATH.$directory, 0777, true);
+			}
+
+			$this->session->set_flashdata('success', "Backup path is successfully updated.");
+           }
+		}
+
 		redirect( 'extensions/ext_nova_enhanced_extension_manager/Manage/manage' );
 	}
 
@@ -153,7 +187,16 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
 		$definition = $this->manager->getFullDefinition();
          
           
+        $extConfigFilePath = dirname(__FILE__) . '/../config.json';
 
+        if (!file_exists($extConfigFilePath))
+        {
+            return [];
+        }
+        $file = file_get_contents($extConfigFilePath);
+        $data['jsons'] = json_decode($file, true);
+
+        $data['directory']=isset($data['jsons']['setting']['directory'])?$data['jsons']['setting']['directory']:''; 
 
 		$data['extensions'] = [];
 		foreach ( $definition as $extName => $extData ) {
@@ -243,28 +286,40 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
   				$zip->close();
 
              
+            
 
              $lastModified = $this->manager->GetFilesAndFolder();
+
+            
+  			 $extractName= isset($lastModified['0'])?$lastModified['0']:$folderName;
+
+            
+  			  $folderExt= $this->manager->getExtensionDetail($extractName);
+
   			 
-  			 $extensionName= isset($lastModified['0'])?$lastModified['0']:$folderName;
-                
+               $extensionName= isset($folderExt['folder'])?$folderExt['folder']:$extractName;
+               $name=  isset($folderExt['name'])?$folderExt['name']:$extractName;
+               
+               if(!file_exists($uploadPath.$extensionName))
+               { 
+
+                   rename($uploadPath.$extractName,$uploadPath.$extensionName);
+               }
+              
   				
                 $extensionFile= dirname(__FILE__)."/../upload/$extensionName";
-                 if (file_exists( $extensionFile ) ) { 
+                 if (is_dir( $extensionFile ) ) { 
                     
                    $details= $this->manager->getExtensionDetail( $extensionName );
 
                    if(!empty($details))
                    	{
-
- 
                    		$folder = isset($details['folder'])?$details['folder']:$extensionName;
                       $upgradeable= isset($details['upgradeable'])?$details['upgradeable']:'no';
                       if($upgradeable=='no')
                       {
                          
                          $this->manager->moveExtension( $folder );
-
 
                       }else {
 
@@ -314,7 +369,20 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
         {
           $this->session->set_flashdata('error', "$error");
         }else {
-        	$this->session->set_flashdata('success', "Extension updated successfully");
+
+           $replaceConfigFiles = isset($details['replaceConfigFiles'])?$details['replaceConfigFiles']:'no';
+
+
+          if($replaceConfigFiles=='yes')
+          {  
+          	
+
+            $this->session->set_flashdata('success', "This update for $name includes a configuration file change. Remember to update the extension's configuration values.");
+          }else {
+             $this->session->set_flashdata('success', "$name Extension updated successfully");
+          }
+
+        	
         }
     }
 

@@ -15,5 +15,6 @@
 	"configFiles": [
 		
 	],
-	"upgradeable": "yes"
+	"upgradeable": "yes",
+	"replaceConfigFiles":"yes"
 }

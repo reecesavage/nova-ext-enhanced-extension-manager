@@ -92,6 +92,7 @@ class ExtensionManager {
     // check if we can disable the extension 
 	public function checkRequiredDisableExtension($enabledExtensions,$extensionName)
 	{    
+   
 		$inRequired['status']='NOK';
        if (!empty($enabledExtensions)) {
 
@@ -226,13 +227,28 @@ class ExtensionManager {
        }
 
        $src=  APPPATH.'extensions/'.$extName.'/';
-       $backupFolder=  APPPATH.'extensions/backup/';
+
+
+           $extConfigFilePath = dirname(__FILE__) . '/../config.json';
+
+        if (!file_exists($extConfigFilePath))
+        {
+            return [];
+        }
+        $file = file_get_contents($extConfigFilePath);
+        $data['jsons'] = json_decode($file, true);
+
+        $backupPath=isset($data['jsons']['setting']['directory'])?$data['jsons']['setting']['directory']:''; 
+
+       $backupFolder=  APPPATH.$backupPath.'/';
+
+
 
        if (!file_exists($backupFolder)) {
              mkdir($backupFolder, 0777, true);
-		}
+		    }
 
-       $dst= APPPATH.'extensions/backup/'.$moveFileName.'/';
+       $dst= $backupFolder.$moveFileName.'/';
       
        $this->sys->rcopy($src, $dst);
        $this->sys->rrmdir($src);
@@ -288,6 +304,16 @@ class ExtensionManager {
     $FilesAndFolders = array_keys($FilesAndFolders);
 
     return ($FilesAndFolders) ? $FilesAndFolders : false;
+}
+
+public function getExtensionName($extName)
+{
+   $details= $this->sys->getExtensionDetails( $extName );
+   if(!empty($details))
+   {
+      return isset($details['name'])?$details['name']:$extName;
+   }
+   return $extName;
 }
 
 

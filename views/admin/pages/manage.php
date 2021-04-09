@@ -111,6 +111,23 @@
 					<?php echo form_close(); ?>
 				</div>
 
+
+
+				<?php echo form_open('extensions/ext_nova_enhanced_extension_manager/Manage/config/');?>
+
+
+			<p>
+				<kbd>Directory</kbd>
+				application/<input type="text" name="directory" required value="<?=$directory?>">	
+			</p>
+
+			<br>
+			<button name="submit" type="submit" class="button-main" value="Submit"><span>Create Directory</span></button>
+<?php echo form_close(); ?>
+
+
+
+
 <div class="ext-extensionManager-credits fontSmall">
 	<a href="https://github.com/reecesavage/nova-ext-enhanced-extension-manager" target="_blank">Enhanced Extension Manager</a> | Forked from  <a href="https://github.com/mooeypoo/Nova-ExtensionManager">ExtensionManager </a>
 	Enhancements developed by <a href="https://simcentral.org/" target="_blank">Sim Central</a>
