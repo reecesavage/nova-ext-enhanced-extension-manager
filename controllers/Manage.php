@@ -57,11 +57,20 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
 			} else if ( $action === 'enable' ) {
 				// Add it in
 
-              $enableExtension= $this->manager->checkRequiredEnableExtension($enabledExtensions,$extensionName);
+
+              
+                     $enableExtension= $this->manager->checkRequiredEnableExtension($enabledExtensions,$extensionName);
 
               if($enableExtension['status']=='NOK')
 				{
                   
+                  
+                  $incompatibleExtensions= $this->manager->checkIncompatibleExtensions($enabledExtensions,$extensionName);
+
+
+              if($incompatibleExtensions['status']=='NOK')
+              { 
+
 
                    $enabledExtensions[] = $extensionName;
                    // Save the new setting
@@ -73,9 +82,17 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
 				$this->session->set_flashdata('success', "$name extension was successfully enabled.");
 
 				}else {
-                      $message= implode(',', $enableExtension['data']);
-                    $this->session->set_flashdata('error', "$message need to be installed and enabled before $name can be enabled.");
+
+					 $message= implode(',', $incompatibleExtensions['data']);
+                    $this->session->set_flashdata('error', "$name extension is not compatible with $message extensions, so both can not be enabled at the same time.");
+
+                      
 				}
+              }else {
+                $message= implode(',', $enableExtension['data']);
+                    $this->session->set_flashdata('error', "$message need to be installed and enabled before $name can be enabled.");
+              }
+             
                
 
 				
@@ -198,6 +215,25 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
 
         $data['directory']=isset($data['jsons']['setting']['directory'])?$data['jsons']['setting']['directory']:''; 
 
+
+        $data['createDir']= true;
+         $data['is_exist']= false;
+          $data['isWritiable']= false;
+        if (file_exists(APPPATH.$data['directory'])) {
+              
+                $data['createDir']= false;
+                 $data['is_exist']= true;
+          if(is_writable(APPPATH.$data['directory']))
+			 {
+                  $data['createDir']= false;
+                   $data['isWritiable']= true;
+			 }
+                
+			}
+
+			
+
+        
 		$data['extensions'] = [];
 		foreach ( $definition as $extName => $extData ) {
 
@@ -224,6 +260,8 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
 				],
 				'version'=>isset($extData['details']['version'])?$extData['details']['version']:'',
 				'required_extension'=>(isset($extData['details']['requiredExtensions']) && is_array($extData['details']['requiredExtensions']))?implode(',', $extData['details']['requiredExtensions']):'',
+
+				'incompatibleExtensions'=>(isset($extData['details']['incompatibleExtensions']) && is_array($extData['details']['incompatibleExtensions']))?implode(',', $extData['details']['incompatibleExtensions']):'',
 
 				'repository'=>isset($extData['details']['url'])?$extData['details']['url']:'',
 				'mandatory' => (int)$isMandatory,
@@ -305,10 +343,9 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
 
                    rename($uploadPath.$extractName,$uploadPath.$extensionName);
                }
-              
-  				
+             
                 $extensionFile= dirname(__FILE__)."/../upload/$extensionName";
-                 if (is_dir( $extensionFile ) ) { 
+                 if (is_dir( $extensionFile ) ) {
                     
                    $details= $this->manager->getExtensionDetail( $extensionName );
 
@@ -316,29 +353,49 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
                    	{
                    		$folder = isset($details['folder'])?$details['folder']:$extensionName;
                       $upgradeable= isset($details['upgradeable'])?$details['upgradeable']:'no';
+
+                       $replaceConfigFiles = isset($details['replaceConfigFiles'])?$details['replaceConfigFiles']:'no';
+                       
+                       	$extDetailsFilePath = APPPATH.'extensions/'.$folder;
+                          $added= false;
+
+
+                       if(!is_dir($extDetailsFilePath)){
+                          $added= true;
+                       }
+
+                      
+
                       if($upgradeable=='no')
-                      {
+                      { 
                          
                          $this->manager->moveExtension( $folder );
 
                       }else {
-
-                      	  $configFiles= isset($details['configFiles'])?$details['configFiles']:[];
+                           
+                          if($replaceConfigFiles=='yes')
+                          {
+                          	  $configFiles= isset($details['configFiles'])?$details['configFiles']:[];
                       	  if($configFiles)
                       	  { 
-                      	  	 
+                      	  	  
+
                       	  	foreach ($configFiles as $configFile)
                       	  	{   
                                 $src=  APPPATH.'extensions/'.$folder.'/'.$configFile;
                                 $des= APPPATH.'extensions/ext_nova_enhanced_extension_manager/upload/'.$folder.'/'.$configFile;
-                                if ( file_exists( $src) ) {
-									
-                                  copy($src,$desc);
+                                
 
+
+                                if ( file_exists( $src) ) {
+                                     copy($src,$des);
+								}else {
+								   unlink($des);	
 								}
 
                       	  	}
                       	  }
+                          }
                           $this->manager->moveExtension( $folder );
                       }
                    	}else {
@@ -370,16 +427,23 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
           $this->session->set_flashdata('error', "$error");
         }else {
 
-           $replaceConfigFiles = isset($details['replaceConfigFiles'])?$details['replaceConfigFiles']:'no';
+          
 
 
-          if($replaceConfigFiles=='yes')
+          if($replaceConfigFiles=='yes' && $upgradeable=='yes')
           {  
           	
 
             $this->session->set_flashdata('success', "This update for $name includes a configuration file change. Remember to update the extension's configuration values.");
           }else {
-             $this->session->set_flashdata('success', "$name Extension updated successfully");
+
+               if($added==true)
+               {
+                 $this->session->set_flashdata('success', "$name Extension added successfully");
+               }else {
+               	$this->session->set_flashdata('success', "$name Extension updated successfully");
+               }
+             
           }
 
         	

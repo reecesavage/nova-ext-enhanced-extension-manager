@@ -16,5 +16,8 @@
 		
 	],
 	"upgradeable": "yes",
-	"replaceConfigFiles":"yes"
+	"replaceConfigFiles":"yes",
+	"incompatibleExtensions":[ 
+            
+	]
 }

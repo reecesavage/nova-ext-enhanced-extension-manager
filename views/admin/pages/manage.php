@@ -72,6 +72,12 @@
 							</tr>
 
 							<tr>
+							<td class="align_top col_150">
+								 Incompatible Extensions :  <?php echo $extData['incompatibleExtensions']; ?>
+							</td>
+							</tr>
+
+							<tr>
 
 
 					
@@ -102,6 +108,7 @@
 
 <?php } ?>
 </div>
+<br>
 
 
 <div>	
@@ -112,7 +119,8 @@
 				</div>
 
 
-
+               
+               <?php if(!empty($createDir)){?>
 				<?php echo form_open('extensions/ext_nova_enhanced_extension_manager/Manage/config/');?>
 
 
@@ -124,6 +132,14 @@
 			<br>
 			<button name="submit" type="submit" class="button-main" value="Submit"><span>Create Directory</span></button>
 <?php echo form_close(); ?>
+              <?php }else if(!empty($is_exist) && !empty($isWritiable)) { ?>
+                      <br> 
+                      <div>Backup path exists and is writable.</div>   
+              <?php }else if(!empty($is_exist) && empty($isWritiable))
+               { ?>
+                   <div>Backup path exists but is not writeable..</div> 
+              <?php }
+              	?>
 
 
 

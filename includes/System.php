@@ -109,10 +109,13 @@ class System {
 	 * Install the necessary menu items, if they don't exist yet
 	 */
 	public function install() {
+
+
 		$this->ci->load->model('menu_model');
 		$expectedLink = 'extensions/ext_nova_enhanced_extension_manager/Manage/';
 		$cat = $this->ci->menu_model->get_menu_category( 'manageext' );
-
+        
+       
 		if ( $cat === false ) {
 			// Add the category and the menu items
 			$insertCat = $this->ci->menu_model->add_menu_category( [
@@ -126,6 +129,8 @@ class System {
 		$query = $this->ci->db->get_where('menu_items', array('menu_name' => 'Manage Extensions'));
     $item = ($query->num_rows() > 0) ? $query->row() : false;   
       if($item==false){
+        
+         $this->createDirectory();
 
 			// Add item
 			$insertItem = $this->ci->menu_model->add_menu_item( [
@@ -144,6 +149,31 @@ class System {
 				'menu_cat' => 'manageext',
 			] );
 		}
+	}
+
+	public function createDirectory()
+	{ 
+        
+         $extConfigFilePath = dirname(__FILE__) . '/../config.json';
+
+        if (!file_exists($extConfigFilePath))
+        {
+            return [];
+        }
+        $file = file_get_contents($extConfigFilePath);
+
+
+        $data['jsons'] = json_decode($file, true);
+            
+            $directory="extensions/backup";
+            $data['jsons']['setting']['directory']=$directory;
+            $jsonEncode = json_encode($data['jsons'], JSON_PRETTY_PRINT);
+            file_put_contents($extConfigFilePath, $jsonEncode);
+           	  if (!file_exists(APPPATH.$directory)) {
+                 mkdir(APPPATH.$directory, 0777, true);
+			}
+        
+        
 	}
 
 

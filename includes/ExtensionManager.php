@@ -317,4 +317,38 @@ public function getExtensionName($extName)
 }
 
 
+public function checkIncompatibleExtensions($enabledExtensions,$extensionName)
+{
+      $incompatible['status']='NOK';
+
+
+
+     if (!empty($extensionName)) {
+          $extData= $this->sys->getExtensionDetails( $extensionName );
+        
+        if(!empty($extData))
+        {
+
+          $incompatibleExtensions = isset($extData['incompatibleExtensions'])?$extData['incompatibleExtensions']:[];
+           if(!empty($incompatibleExtensions))
+             {
+                foreach ($incompatibleExtensions as $extension)
+                { 
+                  
+                  if(in_array($extension, $enabledExtensions)){
+                   $incompatible['status']='OK';
+                   $incompatible['data'][]=$extension;
+                }
+
+                }
+             }
+
+          
+        }
+     }
+    
+     return $incompatible;
+}
+
+
 }
