@@ -22,4 +22,22 @@ $(document).ready(function(){
 			return false;
 		});
 
+		$('#directory').blur(function(){
+         var dir = $("#directory").val();
+          var d= $(this).attr('data-dir');
+          if(dir != d)
+          {
+            $(".backup-path").css("display","none");
+            $(".submit-directory").attr('disabled',false);
+
+          }else {
+            $(".backup-path").css("display","block");
+             $(".submit-directory").attr('disabled',true);
+          }
+		});
+
+
+
+
+
 });

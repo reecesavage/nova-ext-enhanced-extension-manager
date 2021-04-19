@@ -65,11 +65,7 @@
 							</td>
 							</tr>
 
-							<tr>
-							<td class="align_top col_150">
-								 Repository : <a target="_blank" href="<?php echo $extData['repository']; ?>"><?php echo $extData['repository']; ?></a>
-							</td>
-							</tr>
+							
 
 							<tr>
 							<td class="align_top col_150">
@@ -78,12 +74,12 @@
 							</tr>
 
 							<tr>
-
-
-					
-								
-
+							<td class="align_top col_150">
+								 Repository : <a target="_blank" href="<?php echo $extData['repository']; ?>"><?php echo $extData['repository']; ?></a>
+							</td>
 							</tr>
+
+							
 
 							
 
@@ -120,24 +116,24 @@
 
 
                
-               <?php if(!empty($createDir)){?>
+             
 				<?php echo form_open('extensions/ext_nova_enhanced_extension_manager/Manage/config/');?>
 
 
 			<p>
 				<kbd>Directory</kbd>
-				application/<input type="text" name="directory" required value="<?=$directory?>">	
+				application/<input type="text" id="directory" data-dir="<?=$directory?>" name="directory" required value="<?=$directory?>">	
 			</p>
 
 			<br>
-			<button name="submit" type="submit" class="button-main" value="Submit"><span>Create Directory</span></button>
+			<button name="submit" <?= empty($createDir)?'disabled':'' ?> type="submit" class="button-main submit-directory"  value="Submit"><span>Create Directory</span></button>
 <?php echo form_close(); ?>
-              <?php }else if(!empty($is_exist) && !empty($isWritiable)) { ?>
+              <?php if(!empty($is_exist) && !empty($isWritiable)) { ?>
                       <br> 
-                      <div>Backup path exists and is writable.</div>   
+                      <div class="backup-path">Backup path exists and is writable.</div>   
               <?php }else if(!empty($is_exist) && empty($isWritiable))
                { ?>
-                   <div>Backup path exists but is not writeable..</div> 
+                   <div class="backup-path">Backup path exists but is not writeable..</div> 
               <?php }
               	?>
 
