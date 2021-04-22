@@ -17,7 +17,7 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
 
 	public function toggle( $extensionName ) {
 		$extensionName = urldecode( $extensionName );
-        
+         
          
           $name= $this->manager->getExtensionName( $extensionName );
 
@@ -42,6 +42,8 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
 					array_search( $extensionName, $enabledExtensions ),
 					1
 				);
+
+                    $this->manager->pasteUninstallFile($extensionName);
                     $this->manager->updateSettings( $enabledExtensions );
                     $this->manager->disableUpdateExtension( $extensionName );
                     
@@ -71,7 +73,8 @@ class __extensions__ext_nova_enhanced_extension_manager__Manage extends Nova_con
               if($incompatibleExtensions['status']=='NOK')
               { 
 
-
+                 
+                 $this->manager->copyUninstallFile($extensionName);
                    $enabledExtensions[] = $extensionName;
                    // Save the new setting
 				$this->manager->updateSettings( $enabledExtensions );

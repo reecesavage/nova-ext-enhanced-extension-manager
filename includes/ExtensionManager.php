@@ -351,4 +351,66 @@ public function checkIncompatibleExtensions($enabledExtensions,$extensionName)
 }
 
 
+public function copyUninstallFile($extensionName)
+{
+    if (!empty($extensionName)) {
+          $extData= $this->sys->getExtensionDetails( $extensionName );
+          $uninstalls= isset($extData['uninstall'])?$extData['uninstall']:[];
+          if(!empty($uninstalls))
+          {
+             
+            $uninstallPath=   APPPATH.'extensions/uninstall/';
+              if (!file_exists($uninstallPath)) {
+                   mkdir($uninstallPath, 0777, true);
+                 }
+
+            foreach($uninstalls as $uninstall)
+            {
+              
+              $end= end(explode("/",$uninstall));
+
+              
+              if(!file_exists($uninstallPath.$end))
+              {
+                copy($uninstall,$uninstallPath.$end);
+              }
+
+            }
+          }
+
+
+        }
+}
+
+public function pasteUninstallFile($extensionName)
+{
+
+  if (!empty($extensionName)) {
+          $extData= $this->sys->getExtensionDetails( $extensionName );
+          $uninstalls= isset($extData['uninstall'])?$extData['uninstall']:[];
+          if(!empty($uninstalls))
+          {
+             
+            $uninstallPath=   APPPATH.'extensions/uninstall/';
+    
+            foreach($uninstalls as $uninstall)
+            {
+              
+              $end= end(explode("/",$uninstall));
+
+              
+              if(file_exists($uninstallPath.$end))
+              {
+                copy($uninstallPath.$end,$uninstall);
+              }
+
+            }
+          }
+
+
+        }
+
+}
+
+
 }
